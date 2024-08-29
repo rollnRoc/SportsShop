@@ -4,19 +4,25 @@
  */
 package com.project.eshop.core.utilities.mapping;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import springfox.documentation.swagger2.mappers.ModelMapper;
-
 /**
  *
  * @author Emre Yıldırım
  */
+
+
+import org.modelmapper.ModelMapper;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+/**
+ * Configuration class to define ModelMapper bean.
+ */
 @Configuration
 public class ModelMapperConfig {
 
-	@Bean
-	public ModelMapper modelMapper() {
-		return new ModelMapper();
-	}
+    @Bean
+    public ModelMapper modelMapper() {
+        return new ModelMapper();
+    }
 }
+
