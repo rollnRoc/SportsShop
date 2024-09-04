@@ -4,6 +4,7 @@
  */
 package com.project.eshop.dataAccess;
 
+import com.project.eshop.core.utilities.results.DataResult;
 import com.project.eshop.entities.concretes.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 

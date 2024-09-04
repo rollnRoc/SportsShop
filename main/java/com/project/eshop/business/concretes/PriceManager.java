@@ -18,7 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.persistence.EntityNotFoundException;
 
 /**
  * Price Manager class
@@ -26,9 +28,9 @@ import java.util.stream.Collectors;
 @Service
 public class PriceManager implements PriceService {
 
-    private PriceRepository priceRepository;
-    private ProductRepository productRepository;
-    private ModelMapper modelMapper;
+    private final PriceRepository priceRepository;
+    private final ProductRepository productRepository;
+    private final ModelMapper modelMapper;
 
     @Autowired
     public PriceManager(PriceRepository priceRepository, ProductRepository productRepository, ModelMapper modelMapper) {
@@ -43,29 +45,57 @@ public class PriceManager implements PriceService {
         List<PriceDto> priceDtos = prices.stream()
                 .map(price -> modelMapper.map(price, PriceDto.class))
                 .collect(Collectors.toList());
-        return new SuccessDataResult<>(priceDtos, "Prices retrieved successfully");
+        return new SuccessDataResult<>(priceDtos, "All prices retrieved successfully");
     }
 
     @Override
-    public DataResult<PriceDto> addPrice(PriceDto priceDto) {
-        // Directly fetch the Product
-        Product product = productRepository.findById(priceDto.getProductId()).orElse(null);
-
-        // Check if the Product is null
-        if (product == null) {
-            // Return an error result if the product does not exist
-            return new ErrorDataResult<>("Product with ID " + priceDto.getProductId() + " does not exist");
+    public DataResult<PriceDto> getById(long id) {
+        Optional<Price> priceOptional = priceRepository.findById(id);
+        if (priceOptional.isPresent()) {
+            PriceDto priceDto = modelMapper.map(priceOptional.get(), PriceDto.class);
+            return new SuccessDataResult<>(priceDto, "Price retrieved successfully");
+        } else {
+            return new ErrorDataResult<>("Price not found");
         }
+    }
 
-        // Map PriceDto to Price entity and set the found product
+    @Override
+    public DataResult<PriceDto> add(PriceDto priceDto) {
+        Product product = productRepository.findById(priceDto.getProductId())
+                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+        
         Price price = modelMapper.map(priceDto, Price.class);
-        price.setProduct(product);  // Link the Product entity to the Price
-
-        // Save the Price entity
+        price.setProduct(product);
         Price savedPrice = priceRepository.save(price);
-
-        // Map back to PriceDto
+        
         PriceDto savedPriceDto = modelMapper.map(savedPrice, PriceDto.class);
-        return new SuccessDataResult<>(savedPriceDto, "Price saved successfully");
+        return new SuccessDataResult<>(savedPriceDto, "Price added successfully");
+    }
+
+    @Override
+    public DataResult<PriceDto> update(long id, PriceDto priceDto) {
+        Optional<Price> priceOptional = priceRepository.findById(id);
+        if (priceOptional.isPresent()) {
+            Price priceToUpdate = priceOptional.get();
+            priceToUpdate.setPrice(priceDto.getPrice());
+            priceToUpdate.setFormerPrice(priceDto.getFormerPrice());
+
+            Price updatedPrice = priceRepository.save(priceToUpdate);
+            PriceDto updatedPriceDto = modelMapper.map(updatedPrice, PriceDto.class);
+            return new SuccessDataResult<>(updatedPriceDto, "Price updated successfully");
+        } else {
+            return new ErrorDataResult<>("Price not found");
+        }
+    }
+
+    @Override
+    public DataResult<String> delete(long id) {
+        Optional<Price> priceOptional = priceRepository.findById(id);
+        if (priceOptional.isPresent()) {
+            priceRepository.deleteById(id);
+            return new SuccessDataResult<>("Price deleted successfully");
+        } else {
+            return new ErrorDataResult<>("Price not found");
+        }
     }
 }

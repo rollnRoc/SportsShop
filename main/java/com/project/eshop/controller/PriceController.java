@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import org.springframework.http.ResponseEntity;
 
 /**
  * Price Controller class
@@ -23,25 +24,41 @@ import java.util.List;
 @RequestMapping("/api/prices")
 public class PriceController {
 
-    private PriceService priceService;
+    private final PriceService priceService;
 
     @Autowired
     public PriceController(PriceService priceService) {
         this.priceService = priceService;
     }
 
-    @GetMapping("/getall")
-    public DataResult<List<PriceDto>> getAll() {
-        return this.priceService.getAll();
+    @GetMapping("/getAll")
+    public ResponseEntity<DataResult<List<PriceDto>>> getAll() {
+        DataResult<List<PriceDto>> result = priceService.getAll();
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/getById/{id}")
+    public ResponseEntity<DataResult<PriceDto>> getById(@PathVariable long id) {
+        DataResult<PriceDto> result = priceService.getById(id);
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping("/add")
-    public DataResult<PriceDto> addPrice(@RequestBody PriceDto priceDto) {
-        return this.priceService.addPrice(priceDto);
+    public ResponseEntity<DataResult<PriceDto>> add(@RequestBody PriceDto priceDto) {
+        DataResult<PriceDto> result = priceService.add(priceDto);
+        return ResponseEntity.ok(result);
+    }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<DataResult<PriceDto>> update(@PathVariable long id, @RequestBody PriceDto priceDto) {
+        DataResult<PriceDto> result = priceService.update(id, priceDto);
+        return ResponseEntity.ok(result);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<DataResult<String>> delete(@PathVariable long id) {
+        DataResult<String> result = priceService.delete(id);
+        return ResponseEntity.ok(result);
     }
 }
-//@PostMapping("/add")
-//    @ResponseStatus(HttpStatus.CREATED)
-//    public DataResult<EmployerDto> addEmployer(@RequestBody EmployerDto employerDto){
-//        return employerService.addEmployer(employerDto);
-//    }
+

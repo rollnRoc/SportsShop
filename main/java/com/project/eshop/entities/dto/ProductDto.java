@@ -12,26 +12,30 @@ import com.project.eshop.entities.concretes.Favourite;
 import com.project.eshop.entities.concretes.Price;
 import com.project.eshop.entities.concretes.Seller;
 import java.util.Set;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import lombok.*;
 
 /**
  *
  * @author Emre Yıldırım
  */
+
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode
+@ToString
 public class ProductDto {
     private long id;
     private String productName;
     private int stock;
-    private double price;
-    private String categoryName;
-    private String brandName;    
+    private long priceId;
+    private long categoryId; 
+    private long brandId;
 //    private Set <Comment> comments;
-    private String businessName;
+    private long sellerId;
 //    private Set <Cart> carts;
 //    private Set<Favourite> favourites;
 }
+//10.17 restart
