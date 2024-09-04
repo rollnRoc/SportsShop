@@ -4,6 +4,7 @@
  */
 package com.project.eshop.entities.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.project.eshop.entities.concretes.Brand;
 import com.project.eshop.entities.concretes.Cart;
 import com.project.eshop.entities.concretes.Category;
@@ -31,11 +32,20 @@ public class ProductDto {
     private String productName;
     private int stock;
     private long priceId;
-    private long categoryId; 
-    private long brandId;
+//    private long categoryId;
+//    private long brandId;
+
+
+    private String brandName;
+
+
+    private String categoryName;
+
+
+    private String sellerName;
+
 //    private Set <Comment> comments;
-    private long sellerId;
+//    private long sellerId;
 //    private Set <Cart> carts;
 //    private Set<Favourite> favourites;
 }
-//10.17 restart

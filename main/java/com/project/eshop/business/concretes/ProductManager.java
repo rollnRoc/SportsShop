@@ -22,6 +22,7 @@ import com.project.eshop.entities.dto.BrandDto;
 import com.project.eshop.entities.dto.PriceDto;
 import com.project.eshop.entities.dto.ProductDto;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.EntityNotFoundException;
@@ -45,7 +46,7 @@ public class ProductManager implements ProductService {
 
     @Autowired
     public ProductManager(ProductRepository productRepository, BrandRepository brandRepository,
-            CategoryRepository categoryRepository, SellerRepository sellerRepository, ModelMapper modelMapper, PriceRepository priceRepository) {
+                          CategoryRepository categoryRepository, SellerRepository sellerRepository, ModelMapper modelMapper, PriceRepository priceRepository) {
         this.productRepository = productRepository;
         this.brandRepository = brandRepository;
         this.categoryRepository = categoryRepository;
@@ -56,28 +57,38 @@ public class ProductManager implements ProductService {
 
     @Override
     public DataResult<ProductDto> addProduct(ProductDto productDto) {
-        Brand brand = brandRepository.findById(productDto.getBrandId())
-                .orElseThrow(() -> new EntityNotFoundException("Brand not found"));
+        Optional<Brand> brandOptional = brandRepository.findByBrandName(productDto.getBrandName());
+        if (brandOptional.isEmpty()) {
+            return new ErrorDataResult<>("Brand not found");
+        }
+        Brand brand = brandOptional.get();
 
-        Category category = categoryRepository.findById(productDto.getCategoryId())
-                .orElseThrow(() -> new EntityNotFoundException("Category not found"));
+        Optional<Category> categoryOptional = categoryRepository.findByCategoryName(productDto.getCategoryName());
+        if (categoryOptional.isEmpty()) {
+            return new ErrorDataResult<>("Category not found");
+        }
+        Category category = categoryOptional.get();
 
-        Seller seller = sellerRepository.findById(productDto.getSellerId())
-                .orElseThrow(() -> new EntityNotFoundException("Seller not found"));
-        
-        Price price = priceRepository.findById(productDto.getPriceId())
-                .orElseThrow(() -> new EntityNotFoundException("Price not found"));
+        // Seller'ı bulma
+        Optional<Seller> sellerOptional = sellerRepository.findByBusinessName(productDto.getSellerName());
+        if (sellerOptional.isEmpty()) {
+            return new ErrorDataResult<>("Seller not found");
+        }
+        Seller seller = sellerOptional.get();
+
+        Optional<Price> priceOptional = priceRepository.findById(productDto.getPriceId());
+        if (priceOptional.isEmpty()) {
+            return new ErrorDataResult<>("Price not found");
+        }
+        Price price = priceOptional.get();
 
         Product product = modelMapper.map(productDto, Product.class);
         product.setBrand(brand);
         product.setCategory(category);
         product.setSeller(seller);
         product.setPrice(price);
-        
-        price.setProduct(product);
-        
 
-        
+        price.setProduct(product);
 
         Product savedProduct = productRepository.save(product);
         ProductDto savedProductDto = modelMapper.map(savedProduct, ProductDto.class);
@@ -87,17 +98,30 @@ public class ProductManager implements ProductService {
 
     @Override
     public DataResult<ProductDto> updateProduct(ProductDto productDto) {
-        Product product = productRepository.findById(productDto.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+        Optional<Product> productOptional = productRepository.findById(productDto.getId());
+        if (productOptional.isEmpty()) {
+            return new ErrorDataResult<>("Product not found");
+        }
+        Product product = productOptional.get();
 
-        Brand brand = brandRepository.findById(productDto.getBrandId())
-                .orElseThrow(() -> new EntityNotFoundException("Brand not found"));
+        Optional<Brand> brandOptional = brandRepository.findByBrandName(productDto.getBrandName());
+        if (brandOptional.isEmpty()) {
+            return new ErrorDataResult<>("Brand not found");
+        }
+        Brand brand = brandOptional.get();
 
-        Category category = categoryRepository.findById(productDto.getCategoryId())
-                .orElseThrow(() -> new EntityNotFoundException("Category not found"));
+        Optional<Category> categoryOptional = categoryRepository.findByCategoryName(productDto.getCategoryName());
+        if (categoryOptional.isEmpty()) {
+            return new ErrorDataResult<>("Category not found");
+        }
+        Category category = categoryOptional.get();
 
-        Seller seller = sellerRepository.findById(productDto.getSellerId())
-                .orElseThrow(() -> new EntityNotFoundException("Seller not found"));
+        // Seller'ı bulma
+        Optional<Seller> sellerOptional = sellerRepository.findByBusinessName(productDto.getSellerName());
+        if (sellerOptional.isEmpty()) {
+            return new ErrorDataResult<>("Seller not found");
+        }
+        Seller seller = sellerOptional.get();
 
         product.setProductName(productDto.getProductName());
         product.setStock(productDto.getStock());
@@ -113,10 +137,11 @@ public class ProductManager implements ProductService {
 
     @Override
     public DataResult<ProductDto> getProductById(long id) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
-
-        ProductDto productDto = modelMapper.map(product, ProductDto.class);
+        Optional<Product> productOptional = productRepository.findById(id);
+        if (productOptional.isEmpty()) {
+            return new ErrorDataResult<>("Product not found");
+        }
+        ProductDto productDto = modelMapper.map(productOptional.get(), ProductDto.class);
         return new SuccessDataResult<>(productDto, "Product found successfully");
     }
 
