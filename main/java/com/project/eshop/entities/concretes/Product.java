@@ -57,9 +57,9 @@ public class Product {
     @JoinColumn(name = "seller_id")
     private Seller seller;
 
-    @JsonIgnore
-    @ManyToMany(mappedBy = "products")
-    private Set<Cart> carts;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private Set<CartProduct> cartProducts;  // Relation with CartProduct entity
+
 
     @JsonIgnore
     @ManyToMany(mappedBy = "products")

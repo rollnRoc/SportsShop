@@ -22,6 +22,6 @@ public class PriceDto {
     private long id;
     private double price;
     private double formerPrice;
-    @JsonIgnore
+
     private long productId;
 }

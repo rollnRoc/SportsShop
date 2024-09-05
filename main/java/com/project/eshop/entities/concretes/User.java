@@ -31,31 +31,28 @@ import lombok.NoArgsConstructor;
 @Table(name="users")
 @Inheritance(strategy = InheritanceType.JOINED)
 public class User {
-    
+
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
-    @Column(name="id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private long id;
-    @Column(name="first_name")
+    @Column(name = "first_name")
     private String name;
-    @Column(name="last_name")
+    @Column(name = "last_name")
     private String lName;
-    @Column(name="nickname")
+    @Column(name = "nickname")
     private String userNickname;
-    @Column(name="email")
+    @Column(name = "email")
     private String email;
-    @Column(name="password")
+    @Column(name = "password")
     private String password;
-    @Column(name="phone_number")
+    @Column(name = "phone_number")
     private String phoneNumber;
-    
-    
-    @OneToMany(mappedBy="user",cascade = CascadeType.ALL)
+
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private Set<Comment> comments;
-    
-    @OneToOne(mappedBy="user", cascade = CascadeType.ALL)
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Cart cart;
-    
-    @OneToOne(mappedBy="user", cascade = CascadeType.ALL)
-    private Favourite favourite;
 }

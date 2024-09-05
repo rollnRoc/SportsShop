@@ -17,6 +17,8 @@ public interface ModelMapperService {
 	
 	ModelMapper forRequest();
 
+	<T> T map(Object source, Class<T> destinationType);
+
 }
 
 

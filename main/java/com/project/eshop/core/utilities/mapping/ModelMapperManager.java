@@ -37,5 +37,10 @@ public class ModelMapperManager implements ModelMapperService {
 		 this.modelMapper.getConfiguration().setAmbiguityIgnored(true).setMatchingStrategy(MatchingStrategies.STANDARD);
 		 return modelMapper;
 	}
+
+	@Override
+	public <T> T map(Object source, Class<T> destinationType) {
+		return modelMapper.map(source, destinationType);
+	}
 }
 

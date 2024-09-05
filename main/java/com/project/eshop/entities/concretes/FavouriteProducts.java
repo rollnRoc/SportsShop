@@ -4,6 +4,7 @@
  */
 package com.project.eshop.entities.concretes;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -23,26 +24,26 @@ import lombok.ToString;
  *
  * @author Emre Yıldırım
  */
-@Entity
-@Table(name="favourite_products")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
+@Entity
+@Table(name = "favourite_products")
 public class FavouriteProducts {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private long id;
+    private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "favourite_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "favourite_id")
     private Favourite favourite;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "product_id")
     private Product product;
-    
-    @Column(name="favourited_date")
-    private Date favouriteDate;
+
+    @Column(name = "favourite_date")
+    private LocalDateTime favouriteDate;
 }

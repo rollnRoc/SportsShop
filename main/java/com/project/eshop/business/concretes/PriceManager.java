@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.persistence.EntityNotFoundException;
+import org.springframework.context.annotation.Lazy;
 
 /**
  * Price Manager class
@@ -33,7 +34,7 @@ public class PriceManager implements PriceService {
     private final ModelMapper modelMapper;
 
     @Autowired
-    public PriceManager(PriceRepository priceRepository, ProductRepository productRepository, ModelMapper modelMapper) {
+    public PriceManager(PriceRepository priceRepository,@Lazy ProductRepository productRepository, ModelMapper modelMapper) {
         this.priceRepository = priceRepository;
         this.productRepository = productRepository;
         this.modelMapper = modelMapper;

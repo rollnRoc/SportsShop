@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 /**
@@ -51,7 +52,7 @@ public class ProductManager implements ProductService {
 
     @Autowired
     public ProductManager(ProductRepository productRepository, BrandRepository brandRepository,
-                          CategoryRepository categoryRepository, SellerRepository sellerRepository, ModelMapper modelMapper, PriceRepository priceRepository) {
+                          CategoryRepository categoryRepository, SellerRepository sellerRepository, ModelMapper modelMapper,@Lazy PriceRepository priceRepository) {
         this.productRepository = productRepository;
         this.brandRepository = brandRepository;
         this.categoryRepository = categoryRepository;

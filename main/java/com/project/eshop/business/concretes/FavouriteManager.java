@@ -1,90 +1,91 @@
 package com.project.eshop.business.concretes;
 
 import com.project.eshop.business.abstracts.FavouriteService;
+import com.project.eshop.core.utilities.mapping.ModelMapperService;
 import com.project.eshop.core.utilities.results.*;
-import com.project.eshop.dataAccess.FavouriteProductRepository;
+
 import com.project.eshop.dataAccess.FavouriteRepository;
 import com.project.eshop.dataAccess.ProductRepository;
 import com.project.eshop.dataAccess.UserRepository;
 import com.project.eshop.entities.concretes.Favourite;
-import com.project.eshop.entities.concretes.FavouriteProducts;
+
 import com.project.eshop.entities.concretes.Product;
 import com.project.eshop.entities.concretes.User;
+import com.project.eshop.entities.dto.FavouriteDto;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import javax.persistence.EntityNotFoundException;
+import java.util.*;
+import org.springframework.context.annotation.Lazy;
 
 @Service
 public class FavouriteManager implements FavouriteService {
 
-    private final FavouriteRepository favouriteRepository;
-    private final FavouriteProductRepository favouriteProductRepository;
-    private final ProductRepository productRepository;
-    private final UserRepository userRepository;
+    
+    private FavouriteRepository favouriteRepository;
 
-    public FavouriteManager(FavouriteRepository favouriteRepository, FavouriteProductRepository favouriteProductRepository, ProductRepository productRepository, UserRepository userRepository) {
+    
+    private ProductRepository productRepository;
+
+    
+    private UserRepository userRepository; // Ensure this is injected
+
+    
+    private ModelMapper modelMapper;
+    
+       
+    @Autowired
+    public FavouriteManager(@Lazy FavouriteRepository favouriteRepository,@Lazy ProductRepository productRepository,@Lazy UserRepository userRepository,@Lazy ModelMapper modelMapper ){
         this.favouriteRepository = favouriteRepository;
-        this.favouriteProductRepository = favouriteProductRepository;
         this.productRepository = productRepository;
         this.userRepository = userRepository;
+        this.modelMapper = modelMapper;
     }
 
     @Override
-    public DataResult<FavouriteProducts> addProductToFavourites(Long userId, Long productId) {
-        // Kullanıcı ve Ürün var mı diye kontrol et
-        Optional<User> userOptional = userRepository.findById(userId);
-        Optional<Product> productOptional = productRepository.findById(productId);
+    public FavouriteDto addProductToFavourite(Long userId, Long productId) {
+        // Ensure the product exists
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        if (userOptional.isEmpty()) {
-            return new ErrorDataResult<>("Kullanıcı bulunamadı");
-        }
+        // Ensure the user exists
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (productOptional.isEmpty()) {
-            return new ErrorDataResult<>("Ürün bulunamadı");
-        }
-
-        User user = userOptional.get();
-        Product product = productOptional.get();
-
-        // Kullanıcının mevcut favouriteleri var mı kontrol et
-        Favourite favourite = favouriteRepository.findByUserId(userId);
-
+        // Find existing favourite for the user or create a new one
+        Favourite favourite = favouriteRepository.findByUser(user);
         if (favourite == null) {
-            // Eğer yoksa, yeni bir favourite listesi oluştur
             favourite = new Favourite();
             favourite.setUser(user);
-            favourite = favouriteRepository.save(favourite);
+            favourite.setProducts(new HashSet<>()); // Initialize products set
         }
 
-        // Ürün zaten favouritelere eklenmiş mi kontrol et
-        List<FavouriteProducts> existingFavouriteProducts = favouriteProductRepository.findByFavouriteId(favourite.getId());
-        boolean isAlreadyFavourited = existingFavouriteProducts.stream()
-                .anyMatch(favouriteProduct -> favouriteProduct.getProduct().getId() == productId);
+        // Add product to favourite if not already present
+        favourite.getProducts().add(product);
 
-        if (isAlreadyFavourited) {
-            return new ErrorDataResult<>("Ürün zaten favorilere eklenmiş");
-        }
+        // Save the favourite
+        favourite = favouriteRepository.save(favourite);
 
-        // Yeni FavouriteProducts oluştur ve kaydet
-        FavouriteProducts favouriteProduct = new FavouriteProducts();
-        favouriteProduct.setFavourite(favourite);
-        favouriteProduct.setProduct(product);
-        favouriteProduct.setFavouriteDate(new Date()); // Favorilere eklenme tarihi
-        favouriteProductRepository.save(favouriteProduct);
-
-        return new SuccessDataResult<>(favouriteProduct, "Ürün favorilere eklendi");
+        // Map to DTO and return
+        return modelMapper.map(favourite, FavouriteDto.class);
     }
 
     @Override
-    public DataResult<List<FavouriteProducts>> getFavouriteProductsByUserId(Long userId) {
-        Favourite favourite = favouriteRepository.findByUserId(userId);
+    public FavouriteDto getFavouriteByUser(Long userId) {
+        // Ensure the user exists
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Find the favourite by user
+        Favourite favourite = favouriteRepository.findByUser(user);
         if (favourite == null) {
-            return new ErrorDataResult<>("Kullanıcının favori listesi bulunamadı");
+            throw new EntityNotFoundException("No favourites found for user");
         }
 
-        List<FavouriteProducts> favouriteProducts = favouriteProductRepository.findByFavouriteId(favourite.getId());
-        return new SuccessDataResult<>(favouriteProducts, "Favori ürünler başarıyla getirildi.");
+        // Map to DTO and return
+        return modelMapper.map(favourite, FavouriteDto.class);
     }
 }
+

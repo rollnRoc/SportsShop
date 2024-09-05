@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.springframework.context.annotation.Lazy;
 
 @Service
 public class UserManager implements UserService {
@@ -22,7 +23,7 @@ public class UserManager implements UserService {
     private final ModelMapper modelMapper;
 
     @Autowired
-    public UserManager(UserRepository userRepository, ModelMapper modelMapper) {
+    public UserManager(@Lazy UserRepository userRepository, ModelMapper modelMapper) {
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
     }

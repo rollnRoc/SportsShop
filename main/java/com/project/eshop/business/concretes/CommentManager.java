@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.springframework.context.annotation.Lazy;
 
 @Service
 public class CommentManager implements CommentService {
@@ -22,7 +23,7 @@ public class CommentManager implements CommentService {
     private final ModelMapper modelMapper;
 
     @Autowired
-    public CommentManager(CommentRepository commentRepository, ModelMapper modelMapper) {
+    public CommentManager(@Lazy CommentRepository commentRepository, ModelMapper modelMapper) {
         this.commentRepository = commentRepository;
         this.modelMapper = modelMapper;
     }
