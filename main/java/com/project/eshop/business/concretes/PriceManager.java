@@ -39,6 +39,10 @@ public class PriceManager implements PriceService {
         this.modelMapper = modelMapper;
     }
 
+
+
+
+
     @Override
     public DataResult<List<PriceDto>> getAll() {
         List<Price> prices = priceRepository.findAll();
@@ -47,6 +51,10 @@ public class PriceManager implements PriceService {
                 .collect(Collectors.toList());
         return new SuccessDataResult<>(priceDtos, "All prices retrieved successfully");
     }
+
+
+
+
 
     @Override
     public DataResult<PriceDto> getById(long id) {
@@ -59,18 +67,25 @@ public class PriceManager implements PriceService {
         }
     }
 
-    @Override
-    public DataResult<PriceDto> add(PriceDto priceDto) {
-        Product product = productRepository.findById(priceDto.getProductId())
-                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
-        
-        Price price = modelMapper.map(priceDto, Price.class);
-        price.setProduct(product);
-        Price savedPrice = priceRepository.save(price);
-        
-        PriceDto savedPriceDto = modelMapper.map(savedPrice, PriceDto.class);
-        return new SuccessDataResult<>(savedPriceDto, "Price added successfully");
-    }
+
+
+
+
+//    @Override
+//    public DataResult<PriceDto> add(PriceDto priceDto) {
+//        Product product = productRepository.findById(priceDto.getProductId())
+//                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+//
+//        Price price = modelMapper.map(priceDto, Price.class);
+//        price.setProduct(product);
+//        Price savedPrice = priceRepository.save(price);
+//
+//        PriceDto savedPriceDto = modelMapper.map(savedPrice, PriceDto.class);
+//        return new SuccessDataResult<>(savedPriceDto, "Price added successfully");
+//    }
+
+
+
 
     @Override
     public DataResult<PriceDto> update(long id, PriceDto priceDto) {
@@ -88,14 +103,8 @@ public class PriceManager implements PriceService {
         }
     }
 
-    @Override
-    public DataResult<String> delete(long id) {
-        Optional<Price> priceOptional = priceRepository.findById(id);
-        if (priceOptional.isPresent()) {
-            priceRepository.deleteById(id);
-            return new SuccessDataResult<>("Price deleted successfully");
-        } else {
-            return new ErrorDataResult<>("Price not found");
-        }
-    }
+
+
+
+
 }

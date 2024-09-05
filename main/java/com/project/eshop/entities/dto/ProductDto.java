@@ -31,7 +31,7 @@ public class ProductDto {
     private long id;
     private String productName;
     private int stock;
-    private long priceId;
+    private PriceDto priceDto;
 //    private long categoryId;
 //    private long brandId;
 

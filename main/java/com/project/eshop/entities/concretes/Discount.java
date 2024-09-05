@@ -4,12 +4,8 @@
  */
 package com.project.eshop.entities.concretes;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -33,4 +29,15 @@ public class Discount {
     private double discountRate;
      @Column(name="discounted_price")
     private double discountedPrice;
+
+
+    // Relationship with Product
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
+    private Product product;
+
+    // Relationship with Price
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "price_id")
+    private Price price;
 }

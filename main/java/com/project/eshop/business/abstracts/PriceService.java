@@ -14,7 +14,7 @@ import java.util.List;
 public interface PriceService {
     DataResult<List<PriceDto>> getAll();
     DataResult<PriceDto> getById(long id);
-    DataResult<PriceDto> add(PriceDto priceDTO);
+//    DataResult<PriceDto> add(PriceDto priceDTO);
     DataResult<PriceDto> update(long id, PriceDto priceDTO);
-    DataResult<String> delete(long id);
+
 }

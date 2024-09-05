@@ -43,11 +43,11 @@ public class PriceController {
         return ResponseEntity.ok(result);
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<DataResult<PriceDto>> add(@RequestBody PriceDto priceDto) {
-        DataResult<PriceDto> result = priceService.add(priceDto);
-        return ResponseEntity.ok(result);
-    }
+//    @PostMapping("/add")
+//    public ResponseEntity<DataResult<PriceDto>> add(@RequestBody PriceDto priceDto) {
+//        DataResult<PriceDto> result = priceService.add(priceDto);
+//        return ResponseEntity.ok(result);
+//    }
 
     @PutMapping("/update/{id}")
     public ResponseEntity<DataResult<PriceDto>> update(@PathVariable long id, @RequestBody PriceDto priceDto) {
@@ -55,10 +55,6 @@ public class PriceController {
         return ResponseEntity.ok(result);
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<DataResult<String>> delete(@PathVariable long id) {
-        DataResult<String> result = priceService.delete(id);
-        return ResponseEntity.ok(result);
-    }
+
 }
 

@@ -34,6 +34,10 @@ import org.springframework.stereotype.Service;
  *
  * @author Emre Yıldırım
  */
+
+
+
+
 @Service
 public class ProductManager implements ProductService {
 
@@ -43,6 +47,7 @@ public class ProductManager implements ProductService {
     private final SellerRepository sellerRepository;
     private final ModelMapper modelMapper;
     private final PriceRepository priceRepository;
+
 
     @Autowired
     public ProductManager(ProductRepository productRepository, BrandRepository brandRepository,
@@ -55,8 +60,13 @@ public class ProductManager implements ProductService {
         this.priceRepository = priceRepository;
     }
 
+
+
+
+
     @Override
     public DataResult<ProductDto> addProduct(ProductDto productDto) {
+        // Fetch Brand, Category, and Seller as before
         Optional<Brand> brandOptional = brandRepository.findByBrandName(productDto.getBrandName());
         if (brandOptional.isEmpty()) {
             return new ErrorDataResult<>("Brand not found");
@@ -69,32 +79,45 @@ public class ProductManager implements ProductService {
         }
         Category category = categoryOptional.get();
 
-        // Seller'ı bulma
         Optional<Seller> sellerOptional = sellerRepository.findByBusinessName(productDto.getSellerName());
         if (sellerOptional.isEmpty()) {
             return new ErrorDataResult<>("Seller not found");
         }
         Seller seller = sellerOptional.get();
 
-        Optional<Price> priceOptional = priceRepository.findById(productDto.getPriceId());
-        if (priceOptional.isEmpty()) {
-            return new ErrorDataResult<>("Price not found");
-        }
-        Price price = priceOptional.get();
+        // Handle Price
+        PriceDto priceDto = productDto.getPriceDto();
+        Price price = modelMapper.map(priceDto, Price.class);
+        price.setProduct(null); // Temporarily set it null to avoid cyclic reference
 
+        // Map ProductDto to Product entity
         Product product = modelMapper.map(productDto, Product.class);
+
+        // Set associations
         product.setBrand(brand);
         product.setCategory(category);
         product.setSeller(seller);
+
+        // Set bidirectional OneToOne relation
         product.setPrice(price);
+        price.setProduct(product);  // Set back product to price
 
-        price.setProduct(product);
-
+        // Save the product (Cascade will save Price as well)
         Product savedProduct = productRepository.save(product);
+
+        // Map back to ProductDto, including PriceDto
         ProductDto savedProductDto = modelMapper.map(savedProduct, ProductDto.class);
+        PriceDto savedPriceDto = modelMapper.map(savedProduct.getPrice(), PriceDto.class);
+        savedProductDto.setPriceDto(savedPriceDto);
 
         return new SuccessDataResult<>(savedProductDto, "Product added successfully");
     }
+
+
+
+
+
+
 
     @Override
     public DataResult<ProductDto> updateProduct(ProductDto productDto) {
@@ -104,6 +127,7 @@ public class ProductManager implements ProductService {
         }
         Product product = productOptional.get();
 
+        // Fetch Brand, Category, and Seller as before
         Optional<Brand> brandOptional = brandRepository.findByBrandName(productDto.getBrandName());
         if (brandOptional.isEmpty()) {
             return new ErrorDataResult<>("Brand not found");
@@ -116,24 +140,42 @@ public class ProductManager implements ProductService {
         }
         Category category = categoryOptional.get();
 
-        // Seller'ı bulma
         Optional<Seller> sellerOptional = sellerRepository.findByBusinessName(productDto.getSellerName());
         if (sellerOptional.isEmpty()) {
             return new ErrorDataResult<>("Seller not found");
         }
         Seller seller = sellerOptional.get();
 
+        // Update product details
         product.setProductName(productDto.getProductName());
         product.setStock(productDto.getStock());
         product.setBrand(brand);
         product.setCategory(category);
         product.setSeller(seller);
 
+        // Update the Price
+        PriceDto priceDto = productDto.getPriceDto();
+        if (priceDto != null) {
+            Price price = modelMapper.map(priceDto, Price.class);
+            price.setProduct(product);  // Set back product reference
+            product.setPrice(price);    // Update the price in product
+        }
+
+        // Save the updated product
         Product updatedProduct = productRepository.save(product);
+
+        // Map back to ProductDto, including PriceDto
         ProductDto updatedProductDto = modelMapper.map(updatedProduct, ProductDto.class);
+        PriceDto updatedPriceDto = modelMapper.map(updatedProduct.getPrice(), PriceDto.class);
+        updatedProductDto.setPriceDto(updatedPriceDto);
 
         return new SuccessDataResult<>(updatedProductDto, "Product updated successfully");
     }
+
+
+
+
+
 
     @Override
     public DataResult<ProductDto> getProductById(long id) {
@@ -141,7 +183,16 @@ public class ProductManager implements ProductService {
         if (productOptional.isEmpty()) {
             return new ErrorDataResult<>("Product not found");
         }
-        ProductDto productDto = modelMapper.map(productOptional.get(), ProductDto.class);
+
+        Product product = productOptional.get();
+        ProductDto productDto = modelMapper.map(product, ProductDto.class);
+
+        // Map the associated Price to PriceDto
+        if (product.getPrice() != null) {
+            PriceDto priceDto = modelMapper.map(product.getPrice(), PriceDto.class);
+            productDto.setPriceDto(priceDto);
+        }
+
         return new SuccessDataResult<>(productDto, "Product found successfully");
     }
 
@@ -149,7 +200,15 @@ public class ProductManager implements ProductService {
     public DataResult<List<ProductDto>> getAllProducts() {
         List<Product> products = productRepository.findAll();
         List<ProductDto> productDtos = products.stream()
-                .map(product -> modelMapper.map(product, ProductDto.class))
+                .map(product -> {
+                    ProductDto productDto = modelMapper.map(product, ProductDto.class);
+                    // Map Price to PriceDto
+                    if (product.getPrice() != null) {
+                        PriceDto priceDto = modelMapper.map(product.getPrice(), PriceDto.class);
+                        productDto.setPriceDto(priceDto);
+                    }
+                    return productDto;
+                })
                 .collect(Collectors.toList());
 
         return new SuccessDataResult<>(productDtos, "All products retrieved successfully");

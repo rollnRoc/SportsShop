@@ -4,6 +4,7 @@
  */
 package com.project.eshop.entities.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.project.eshop.entities.concretes.Product;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,8 +18,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PriceDto {
+    @JsonIgnore
     private long id;
     private double price;
     private double formerPrice;
+    @JsonIgnore
     private long productId;
 }

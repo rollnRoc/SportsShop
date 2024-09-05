@@ -16,7 +16,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DiscountDto {
+
     private long id;
     private double discountRate;
     private double discountedPrice;
+    private long productId;  // New field for product
+    private long priceId;    // New field for price
 }
+
